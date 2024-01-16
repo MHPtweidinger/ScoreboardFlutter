@@ -50,7 +50,6 @@ class _PlayerAddState extends State<PlayerAdd> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(20),
               child: Row(

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:scoreboard/db/player-db.dart';
 import 'package:sqflite/sqflite.dart';
