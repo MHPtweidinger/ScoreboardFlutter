@@ -27,26 +27,32 @@ class _PlayerAddState extends State<PlayerAdd> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.addPlayer),
       ),
-      body: Center(
+      body: Expanded(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: TextFormField(
-                onFieldSubmitted: (text) async {
-                  await playerDB.create(name: textEditingController.text);
-                  Navigator.pop(context);
-                },
-                autofocus: true,
-                controller: textEditingController,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: AppLocalizations.of(context)!.playerName,
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextFormField(
+                  keyboardType: TextInputType.name,
+                  textCapitalization: TextCapitalization.words,
+                  onFieldSubmitted: (text) async {
+                    await playerDB.create(name: textEditingController.text);
+                    Navigator.pop(context);
+                  },
+                  autofocus: true,
+                  controller: textEditingController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    hintText: AppLocalizations.of(context)!.playerName,
+                  ),
                 ),
               ),
             ),
+
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
                   Expanded(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:scoreboard/db/player-db.dart';
 import 'package:scoreboard/entity/player.dart';
@@ -56,8 +57,7 @@ class _PlayerListState extends State<PlayerList> {
             icon: const Icon(Iconsax.grid_eraser5),
             tooltip: AppLocalizations.of(context)!.deleteAllUsers,
             onPressed: () async {
-              await playerDB.deleteAll();
-              fetchPlayers();
+              await deletePlayers(context);
             },
           ),
         ],
@@ -106,6 +106,17 @@ class _PlayerListState extends State<PlayerList> {
         tooltip: AppLocalizations.of(context)!.addPlayer,
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  Future<void> deletePlayers(BuildContext context) async {
+    await playerDB.deleteAll();
+    fetchPlayers();
+    Fluttertoast.showToast(
+      msg: AppLocalizations.of(context)!.allPlayersDeleted,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 1,
     );
   }
 }

@@ -123,9 +123,3 @@ class _PlayerScoreState extends State<PlayerScore> {
     );
   }
 }
-
-// _scrollToEnd() async {
-//   _scrollController.animateTo(
-//       _scrollController.position.maxScrollExtent,
-//       );
-// }
