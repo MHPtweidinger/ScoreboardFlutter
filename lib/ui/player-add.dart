@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../db/player-db.dart';
 
 class PlayerAdd extends StatefulWidget {
   const PlayerAdd({super.key});
@@ -12,6 +13,7 @@ class PlayerAdd extends StatefulWidget {
 
 class _PlayerAddState extends State<PlayerAdd> {
   final textEditingController = TextEditingController();
+  final playerDB = PlayerDB();
 
   @override
   void dispose() {
@@ -23,7 +25,7 @@ class _PlayerAddState extends State<PlayerAdd> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:  Text(AppLocalizations.of(context)!.addPlayer),
+        title: Text(AppLocalizations.of(context)!.addPlayer),
       ),
       body: Center(
         child: Column(
@@ -31,8 +33,9 @@ class _PlayerAddState extends State<PlayerAdd> {
             Padding(
               padding: const EdgeInsets.all(20),
               child: TextFormField(
-                onFieldSubmitted: (text) {
-                  Navigator.pop(context, textEditingController.text);
+                onFieldSubmitted: (text) async {
+                  await playerDB.create(name: textEditingController.text);
+                  Navigator.pop(context);
                 },
                 autofocus: true,
                 controller: textEditingController,
@@ -48,8 +51,9 @@ class _PlayerAddState extends State<PlayerAdd> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context, textEditingController.text);
+                      onPressed: () async {
+                        await playerDB.create(name: textEditingController.text);
+                        Navigator.pop(context);
                       },
                       child: Text(AppLocalizations.of(context)!.submit),
                     ),

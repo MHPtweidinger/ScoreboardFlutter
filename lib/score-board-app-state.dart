@@ -20,7 +20,7 @@ class ScoreBoardAppState extends ChangeNotifier {
 
   void clearPlayerScores() {
     for (var element in players) {
-      element.scores = [];
+      // element.scores = []; // TODO implement this
     }
   }
 

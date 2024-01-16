@@ -1,8 +1,17 @@
 class Player {
-  late String name;
-  late String id;
+  final int id;
+  final String name;
+  final List<int> scores;
 
-  List<int> scores = <int>[];
+  const Player({
+    required this.id,
+    required this.name,
+    required this.scores,
+  });
 
-  Player(this.id, this.name, this.scores);
+  factory Player.fromSqfliteDatabase(Map<String, dynamic> map) => Player(
+        id: map['id']?.toInt() ?? 0,
+        name: map['name'] ?? '',
+        scores: [], // TODO map this correctly
+      );
 }

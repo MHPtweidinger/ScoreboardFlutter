@@ -9,7 +9,6 @@ import 'package:scoreboard/ui/player-score.dart';
 import 'entity/player.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 void main() {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
@@ -35,16 +34,6 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        // localizationsDelegates: const [
-        // AppLocalizations.delegate, // Add this line
-        //   GlobalMaterialLocalizations.delegate,
-        //   GlobalWidgetsLocalizations.delegate,
-        //   GlobalCupertinoLocalizations.delegate,
-        // ],
-        // supportedLocales: const [
-        //   Locale('en'),
-        //   Locale("de"),
-        // ],
         title: "Score Board",
         themeMode: ThemeMode.system,
         onGenerateRoute: (settings) {
@@ -68,7 +57,7 @@ class MyApp extends StatelessWidget {
         ),
         darkTheme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.red, brightness: Brightness.dark),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: <TargetPlatform, PageTransitionsBuilder>{
               TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),

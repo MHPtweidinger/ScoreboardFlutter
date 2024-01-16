@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
+import 'package:scoreboard/db/player-db.dart';
 import 'package:scoreboard/entity/player.dart';
 import 'package:scoreboard/score-board-app-state.dart';
 import 'package:scoreboard/ui/player-add.dart';
 import 'package:scoreboard/ui/player-score.dart';
-import 'package:uuid/uuid.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -19,6 +19,21 @@ class PlayerList extends StatefulWidget {
 }
 
 class _PlayerListState extends State<PlayerList> {
+  Future<List<Player>>? futurePlayers;
+  final playerDB = PlayerDB();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPlayers();
+  }
+
+  void fetchPlayers() {
+    setState(() {
+      futurePlayers = playerDB.fetchAll();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<ScoreBoardAppState>();
@@ -39,47 +54,54 @@ class _PlayerListState extends State<PlayerList> {
           ),
           IconButton(
             icon: const Icon(Iconsax.grid_eraser5),
-            tooltip:  AppLocalizations.of(context)!.deleteAllUsers,
-            onPressed: () {
-              setState(() {
-                appState.deleteAllPlayers(context);
-              });
+            tooltip: AppLocalizations.of(context)!.deleteAllUsers,
+            onPressed: () async {
+              await playerDB.deleteAll();
+              fetchPlayers();
             },
           ),
         ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  for (var player in appState.players)
-                    ListTile(
-                      title: Text(player.name),
-                      trailing: Text(player.scores.sum.toString()),
-                      onTap: () async {
-                        final result = await Navigator.of(context).pushNamed(PlayerScore.routeName, arguments: player);
-                        setState(() {
-                          appState.updatePlayerScore(player, int.parse(result as String));
-                        });
-                      },
+      body: FutureBuilder<List<Player>>(
+          future: futurePlayers,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return Center(
+                // Center is a layout widget. It takes a single child and positions it
+                // in the middle of the parent.
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          for (var player in snapshot.data!)
+                            ListTile(
+                              title: Text(player.name),
+                              trailing: Text(player.scores.sum.toString()),
+                              onTap: () async {
+                                final result = await Navigator.of(context).pushNamed(PlayerScore.routeName, arguments: player);
+                                setState(() {
+                                  appState.updatePlayerScore(player, int.parse(result as String));
+                                });
+                              },
+                            ),
+                        ],
+                      ),
                     ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+                  ],
+                ),
+              );
+            }
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result = await Navigator.of(context).pushNamed(PlayerAdd.routeName);
-          setState(() {
-            appState.addPlayer(Player(const Uuid().v1(), result as String, []));
-          });
+          await Navigator.of(context).pushNamed(PlayerAdd.routeName);
+          fetchPlayers();
         },
         tooltip: AppLocalizations.of(context)!.addPlayer,
         child: const Icon(Icons.add),
