@@ -1,0 +1,11 @@
+{
+  "currentScore": "Aktuelle Punktzahl",
+  "newScore": "Neue Punktzahl",
+  "playerName": "Spieler",
+  "submit": "Bestätigen",
+  "addPlayer": "Spieler hinzufügen",
+  "clearAllScores": "Punkte aller Spieler zurücksetzen",
+  "deleteAllUsers": "Alle Spieler löschen",
+  "allPlayersDeleted": "Alle spieler gelöscht"
+
+}

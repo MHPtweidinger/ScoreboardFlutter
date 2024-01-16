@@ -1,0 +1,11 @@
+{
+  "currentScore": "Current Score",
+  "newScore": "New Score",
+  "playerName": "Player Name",
+  "submit": "Submit",
+  "addPlayer": "Add Player",
+  "clearAllScores": "Clear all scores",
+  "deleteAllUsers": "Delete all players",
+  "allPlayersDeleted": "All Players deleted"
+
+}
