@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:scoreboard/db/player-db.dart';
-import 'package:scoreboard/entity/player.dart';
-import 'package:scoreboard/score-board-app-state.dart';
+import 'package:scoreboard/ui/list/player-list-view-model.dart';
 import 'package:scoreboard/ui/player-add/player-add.dart';
 import 'package:scoreboard/ui/player-score/player-score.dart';
 import 'package:iconsax/iconsax.dart';
@@ -20,101 +18,83 @@ class PlayerList extends StatefulWidget {
 }
 
 class _PlayerListState extends State<PlayerList> {
-  Future<List<Player>>? futurePlayers;
-  final playerDB = PlayerDB();
+  late PlayerListViewModel viewModel;
 
   @override
   void initState() {
-    super.initState();
-    fetchPlayers();
-  }
+    viewModel = Provider.of<PlayerListViewModel>(context, listen: false);
 
-  void fetchPlayers() {
-    setState(() {
-      futurePlayers = playerDB.fetchAll();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      viewModel.fetch();
     });
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<ScoreBoardAppState>();
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-            icon: const Icon(Iconsax.eraser_14),
-            tooltip: 'Clear All Scores',
-            onPressed: () {
-              setState(() {
-                appState.clearPlayerScores();
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Iconsax.grid_eraser5),
-            tooltip: AppLocalizations.of(context)!.deleteAllUsers,
-            onPressed: () async {
-              await deletePlayers(context);
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder<List<Player>>(
-          future: futurePlayers,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              return Center(
-                // Center is a layout widget. It takes a single child and positions it
-                // in the middle of the parent.
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+    return Consumer<PlayerListViewModel>(
+      builder: (_, model, child) => Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
+          actions: [
+            IconButton(
+              icon: const Icon(Iconsax.eraser_14),
+              tooltip: 'Clear All Scores',
+              onPressed: () {
+                model.onClearScores();
+              },
+            ),
+            IconButton(
+              icon: const Icon(Iconsax.grid_eraser5),
+              tooltip: AppLocalizations.of(context)!.deleteAllUsers,
+              onPressed: () async {
+                await model.onDeleteAllPlayers();
+                Fluttertoast.showToast(
+                  msg: AppLocalizations.of(context)!.allPlayersDeleted,
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                );
+              },
+            ),
+          ],
+        ),
+        body: Center(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: ReorderableListView(
+                  onReorder: (int oldIndex, int newIndex) {  },
                   children: [
-                    Expanded(
-                      child: ListView(
-                        children: [
-                          for (var player in snapshot.data!)
-                            ListTile(
-                              title: Text(player.name),
-                              trailing: Text(player.scores.sum.toString()),
-                              onTap: () async {
-                                await Navigator.of(context).pushNamed(PlayerScore.routeName, arguments: player);
-                                fetchPlayers();
-                              },
-                            ),
-                        ],
+                    for (var player in model.players)
+                      ListTile(
+                        key: Key('${player.id}'),
+                        title: Text(player.name),
+                        trailing: Text(player.scores.sum.toString()),
+                        onTap: () async {
+                          await Navigator.of(context).pushNamed(PlayerScore.routeName, arguments: player);
+                          model.fetch();
+                        },
                       ),
-                    ),
                   ],
                 ),
-              );
-            }
-          }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.of(context).pushNamed(PlayerAdd.routeName);
-          fetchPlayers();
-        },
-        tooltip: AppLocalizations.of(context)!.addPlayer,
-        child: const Icon(Icons.add),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            await Navigator.of(context).pushNamed(PlayerAdd.routeName);
+            model.fetch();
+          },
+          tooltip: AppLocalizations.of(context)!.addPlayer,
+          child: const Icon(Icons.add),
+        ),
       ),
-    );
-  }
-
-  Future<void> deletePlayers(BuildContext context) async {
-    await playerDB.deleteAll();
-    fetchPlayers();
-    Fluttertoast.showToast(
-      msg: AppLocalizations.of(context)!.allPlayersDeleted,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
-      timeInSecForIosWeb: 1,
     );
   }
 }
