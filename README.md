@@ -2,15 +2,11 @@
 
 An awesome flutter score board
 
-## Getting Started
+## Functionality
 
-This project is a starting point for a Flutter application.
+This app allows you to keep track of the scored points of table top games and other analog games. 
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Architecture
+- MVVM
+- Dependency Injection: https://pub.dev/packages/get_it
+- DB: https://pub.dev/packages/sqflite 
