@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scoreboard/entity/player.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../db/player-db.dart';
 
 class PlayerScore extends StatefulWidget {
   final Player player;
@@ -19,6 +20,7 @@ class PlayerScore extends StatefulWidget {
 
 class _PlayerScoreState extends State<PlayerScore> {
   final textEditingController = TextEditingController();
+  final playerDB = PlayerDB();
 
   @override
   void dispose() {
@@ -93,8 +95,11 @@ class _PlayerScoreState extends State<PlayerScore> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context, (int.parse(textEditingController.text) * -1).toString());
+                      onPressed: () async {
+                        var scores = widget.player.scores;
+                        scores.add((int.parse(textEditingController.text) * -1));
+                        await playerDB.update(id: widget.player.id, name: widget.player.name, scores: widget.player.scores);
+                        Navigator.pop(context);
                       },
                       child: const Text(
                         "-",
@@ -105,8 +110,11 @@ class _PlayerScoreState extends State<PlayerScore> {
                   const SizedBox(width: 20), // give it width
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context, textEditingController.text);
+                      onPressed: () async {
+                        var scores = widget.player.scores;
+                        scores.add(int.parse(textEditingController.text));
+                        await playerDB.update(id: widget.player.id, name: widget.player.name, scores: widget.player.scores);
+                        Navigator.pop(context);
                       },
                       child: const Text(
                         "+",

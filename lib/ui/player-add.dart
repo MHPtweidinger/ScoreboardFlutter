@@ -38,7 +38,9 @@ class _PlayerAddState extends State<PlayerAdd> {
                   keyboardType: TextInputType.name,
                   textCapitalization: TextCapitalization.words,
                   onFieldSubmitted: (text) async {
-                    await playerDB.create(name: textEditingController.text);
+                    await playerDB.create(
+                      name: textEditingController.text,
+                    );
                     Navigator.pop(context);
                   },
                   autofocus: true,

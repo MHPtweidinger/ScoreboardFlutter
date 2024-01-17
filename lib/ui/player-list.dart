@@ -84,10 +84,8 @@ class _PlayerListState extends State<PlayerList> {
                               title: Text(player.name),
                               trailing: Text(player.scores.sum.toString()),
                               onTap: () async {
-                                final result = await Navigator.of(context).pushNamed(PlayerScore.routeName, arguments: player);
-                                setState(() {
-                                  appState.updatePlayerScore(player, int.parse(result as String));
-                                });
+                                await Navigator.of(context).pushNamed(PlayerScore.routeName, arguments: player);
+                                fetchPlayers();
                               },
                             ),
                         ],

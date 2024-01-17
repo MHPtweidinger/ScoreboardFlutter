@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Player {
   final int id;
   final String name;
@@ -9,9 +11,11 @@ class Player {
     required this.scores,
   });
 
-  factory Player.fromSqfliteDatabase(Map<String, dynamic> map) => Player(
-        id: map['id']?.toInt() ?? 0,
-        name: map['name'] ?? '',
-        scores: [], // TODO map this correctly
-      );
+  factory Player.fromSqfliteDatabase(Map<String, dynamic> map) {
+    return Player(
+      id: map['id']?.toInt() ?? 0,
+      name: map['name'] ?? '',
+      scores: new List<int>.from(jsonDecode(map['scores'] ?? '[]')),
+    );
+  }
 }

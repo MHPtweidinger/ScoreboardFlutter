@@ -1,5 +1,6 @@
 import 'package:scoreboard/entity/player.dart';
 import 'package:sqflite/sqflite.dart';
+import 'dart:convert';
 
 import 'dao.dart';
 
@@ -10,6 +11,7 @@ class PlayerDB {
     await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
     "id" INTEGER not null,
     "name" STRING not null, 
+    "scores" STRING, 
     PRIMARY KEY ("id" AUTOINCREMENT)    
     ); """);
   }
@@ -31,12 +33,13 @@ class PlayerDB {
     return Player.fromSqfliteDatabase(player.first);
   }
 
-  Future<int> update({required int id, String? name}) async {
+  Future<int> update({required int id, String? name, List<int>? scores}) async {
     final database = await PlayerDao().database;
     return await database.update(
         tableName,
         {
           if (name != null) 'name': name,
+          if (scores != null) 'scores': jsonEncode(scores),
         },
         where: 'id = ?',
         conflictAlgorithm: ConflictAlgorithm.rollback,
