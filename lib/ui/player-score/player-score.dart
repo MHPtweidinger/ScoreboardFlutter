@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scoreboard/entity/player.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../db/player-db.dart';
+import '../../db/player-db.dart';
 
 class PlayerScore extends StatefulWidget {
   final Player player;

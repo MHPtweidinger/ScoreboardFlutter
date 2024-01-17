@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:scoreboard/ui/player-add.dart';
+import 'package:scoreboard/ui/player-add/player-add.dart';
 import 'package:scoreboard/score-board-app-state.dart';
-import 'package:scoreboard/ui/player-list.dart';
-import 'package:scoreboard/ui/player-score.dart';
+import 'package:scoreboard/ui/list/player-list.dart';
+import 'package:scoreboard/ui/player-score/player-score.dart';
 import 'entity/player.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

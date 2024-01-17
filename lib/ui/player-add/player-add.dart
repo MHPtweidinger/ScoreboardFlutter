@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../db/player-db.dart';
+import '../../db/player-db.dart';
 
 class PlayerAdd extends StatefulWidget {
   const PlayerAdd({super.key});

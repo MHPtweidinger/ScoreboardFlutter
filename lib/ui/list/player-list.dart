@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:scoreboard/db/player-db.dart';
 import 'package:scoreboard/entity/player.dart';
 import 'package:scoreboard/score-board-app-state.dart';
-import 'package:scoreboard/ui/player-add.dart';
-import 'package:scoreboard/ui/player-score.dart';
+import 'package:scoreboard/ui/player-add/player-add.dart';
+import 'package:scoreboard/ui/player-score/player-score.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
