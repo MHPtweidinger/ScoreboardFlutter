@@ -12,18 +12,19 @@ class PlayerDB {
     "id" INTEGER not null,
     "name" STRING not null, 
     "scores" STRING, 
+    "sorting" INTEGER, 
     PRIMARY KEY ("id" AUTOINCREMENT)    
     ); """);
   }
 
-  Future<int> create({required String name}) async {
+  Future<int> create({required String name, required int sorting}) async {
     final database = await PlayerDao().database;
-    return await database.rawInsert('''INSERT INTO $tableName (name) VALUES (?)''', [name]);
+    return await database.rawInsert('''INSERT INTO $tableName (name, sorting) VALUES (?,?)''', [name, sorting]);
   }
 
   Future<List<Player>> fetchAll() async {
     final database = await PlayerDao().database;
-    final players = await database.rawQuery('''SELECT *  from $tableName ORDER BY id''');
+    final players = await database.rawQuery('''SELECT *  from $tableName ORDER BY sorting''');
     return players.map((player) => Player.fromSqfliteDatabase(player)).toList();
   }
 
@@ -33,13 +34,14 @@ class PlayerDB {
     return Player.fromSqfliteDatabase(player.first);
   }
 
-  Future<int> update({required int id, String? name, List<int>? scores}) async {
+  Future<int> update({required int id, String? name, List<int>? scores, int? sorting}) async {
     final database = await PlayerDao().database;
     return await database.update(
         tableName,
         {
           if (name != null) 'name': name,
           if (scores != null) 'scores': jsonEncode(scores),
+          if (sorting != null) 'sorting': sorting,
         },
         where: 'id = ?',
         conflictAlgorithm: ConflictAlgorithm.rollback,

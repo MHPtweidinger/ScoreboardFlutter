@@ -6,6 +6,14 @@
   "addPlayer": "Spieler hinzufügen",
   "clearAllScores": "Punkte aller Spieler zurücksetzen",
   "deleteAllUsers": "Alle Spieler löschen",
-  "allPlayersDeleted": "Alle spieler gelöscht"
+  "allPlayersDeleted": "Alle spieler gelöscht",
+  "clearScoresDialogTitle": "Alle Punkte zurücksetzen",
+  "clearScoresDialogMessage": "Hiermit werden alle Punkte für alle Spieler gelöscht.",
+  "clearScoresDialogSubmit": "Bestätigen",
+  "clearScoresDialogDiscard": "Abbrechen",
+  "wipePlayersDialogTitle": "Alle Spieler löschen",
+  "wipePlayersDialogMessage": "Hiermit werden alle Spieler entfernt",
+  "wipePlayersDialogSubmit": "Bestätigen",
+  "wipePlayersDialogDiscard": "Abbrechen"
 
 }

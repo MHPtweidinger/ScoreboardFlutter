@@ -23,8 +23,17 @@ class PlayerListViewModel extends ChangeNotifier {
 
   onClearScores() async {
     _players.forEach((element) async {
-      await playerDB.update(id: element.id, name: element.name, scores: []);
+      await playerDB.update(id: element.id, scores: []);
     });
+    await fetch();
+  }
+
+  changeOrder(int oldIndex, int newIndex) async {
+    var oldItem = _players.firstWhere((element) => element.sorting == oldIndex);
+    var newItem = _players.firstWhere((element) => element.sorting == newIndex);
+
+    await playerDB.update(id: oldItem.id, sorting: newIndex);
+    await playerDB.update(id: newItem.id, sorting: oldIndex);
     await fetch();
   }
 }

@@ -6,5 +6,13 @@
   "addPlayer": "Add Player",
   "clearAllScores": "Clear all scores",
   "deleteAllUsers": "Delete all players",
-  "allPlayersDeleted": "All Players deleted"
+  "allPlayersDeleted": "All Players deleted",
+  "clearScoresDialogTitle": "Reset all scores",
+  "clearScoresDialogMessage": "This will delete the scores of all players",
+  "clearScoresDialogSubmit": "Submit",
+  "clearScoresDialogDiscard": "Discard",
+  "wipePlayersDialogTitle": "Delete all players",
+  "wipePlayersDialogMessage": "This will delete all players",
+  "wipePlayersDialogSubmit": "Submit",
+  "wipePlayersDialogDiscard": "Discard"
 }

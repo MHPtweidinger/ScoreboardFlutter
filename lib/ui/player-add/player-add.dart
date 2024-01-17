@@ -38,9 +38,12 @@ class _PlayerAddState extends State<PlayerAdd> {
                   keyboardType: TextInputType.name,
                   textCapitalization: TextCapitalization.words,
                   onFieldSubmitted: (text) async {
-                    await playerDB.create(
-                      name: textEditingController.text,
-                    );
+                    await playerDB.fetchAll().then(
+                          (value) => playerDB.create(
+                            name: textEditingController.text,
+                            sorting: value.length,
+                          ),
+                        );
                     Navigator.pop(context);
                   },
                   autofocus: true,
@@ -59,7 +62,12 @@ class _PlayerAddState extends State<PlayerAdd> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        await playerDB.create(name: textEditingController.text);
+                        await playerDB.fetchAll().then(
+                              (value) => playerDB.create(
+                            name: textEditingController.text,
+                            sorting: value.length,
+                          ),
+                        );
                         Navigator.pop(context);
                       },
                       child: Text(AppLocalizations.of(context)!.submit),

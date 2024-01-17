@@ -6,10 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:scoreboard/db/player-db.dart';
 import 'package:scoreboard/di/locator.dart';
 import 'package:scoreboard/ui/list/player-list-view-model.dart';
-import 'package:scoreboard/ui/list/player-list.dart';
+import 'package:scoreboard/ui/list/player-list-widget.dart';
 import 'package:scoreboard/ui/player-add/player-add.dart';
 import 'package:scoreboard/ui/player-score/player-score-view-model.dart';
-import 'package:scoreboard/ui/player-score/player-score.dart';
+import 'package:scoreboard/ui/player-score/player-score-widget.dart';
 
 import 'entity/player.dart';
 
