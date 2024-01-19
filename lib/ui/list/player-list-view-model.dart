@@ -1,3 +1,4 @@
+import 'package:flutter/src/widgets/dismissible.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../db/player-db.dart';
@@ -8,7 +9,7 @@ class PlayerListViewModel {
 
   PlayerListViewModel({required this.playerDB});
 
-  final _playerListObservable = BehaviorSubject<List<Player>>();
+  final BehaviorSubject<List<Player>> _playerListObservable = BehaviorSubject<List<Player>>();
 
   Stream<List<Player>> get playerList {
     return _playerListObservable.stream;
@@ -31,11 +32,20 @@ class PlayerListViewModel {
   }
 
   changeOrder(int oldIndex, int newIndex) async {
-    var oldItem = _playerListObservable.value.firstWhere((element) => element.sorting == oldIndex);
-    var newItem = _playerListObservable.value.firstWhere((element) => element.sorting == newIndex);
+    List<Player> sortedPlayers = _playerListObservable.value;
+    Player item = sortedPlayers.elementAt(oldIndex);
+    sortedPlayers.remove(item);
+    sortedPlayers.insert(newIndex, item);
+    _playerListObservable.value = sortedPlayers;
 
-    await playerDB.update(id: oldItem.id, sorting: newIndex);
-    await playerDB.update(id: newItem.id, sorting: oldIndex);
+    for (final (index, item) in sortedPlayers.indexed) {
+      await playerDB.update(id: item.id, sorting: index);
+    }
     await fetch();
+  }
+
+  onItemDismissed(int id) {
+    playerDB.delete(id);
+    fetch();
   }
 }

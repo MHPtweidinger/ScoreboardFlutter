@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
@@ -61,25 +62,33 @@ class _PlayerListState extends State<PlayerList> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-                child: ReorderableListView(
+                child: ReorderableListView.builder(
                   scrollController: scrollController,
+                  onReorderStart: (index) => HapticFeedback.lightImpact(),
                   onReorder: (int oldIndex, int newIndex) async {
                     int targetIndex = (oldIndex < newIndex) ? newIndex - 1 : newIndex;
                     await _viewModel.changeOrder(oldIndex, targetIndex);
                   },
-                  children: [
-                    if (state.data != null)
-                      for (var player in state.data!)
-                        ListTile(
-                          key: Key('${player.id}'),
-                          title: Text(player.name),
-                          trailing: Text(player.scores.sum.toString()),
-                          onTap: () async {
-                            await Navigator.of(context).pushNamed(PlayerScore.routeName, arguments: player);
-                            _viewModel.fetch();
-                          },
-                        ),
-                  ],
+                  itemBuilder: (context, index) {
+                    var player = state.data!.elementAt(index);
+                    return Dismissible(
+                      onDismissed: (_) => _viewModel.onItemDismissed(player.id),
+                      key: Key('${player.id}'),
+                      child: ListTile(
+                        key: Key('${player.id}'),
+                        title: Text(player.name),
+                        trailing: Text(player.scores.sum.toString()),
+                        onTap: () async {
+                          await Navigator.of(context).pushNamed(
+                            PlayerScore.routeName,
+                            arguments: player,
+                          );
+                          _viewModel.fetch();
+                        },
+                      ),
+                    );
+                  },
+                  itemCount: state.data?.length ?? 0,
                 ),
               ),
             ],
