@@ -43,7 +43,7 @@ class _PlayerScoreState extends State<PlayerScore> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<ViewState>(
-      stream:  _viewModel.viewState,
+      stream: _viewModel.viewState,
       builder: (context, state) => switch (state.data) {
         LoadingViewState() => Text("Loading"),
         ScoreViewState(
@@ -51,7 +51,7 @@ class _PlayerScoreState extends State<PlayerScore> {
           scores: var scores,
         ) =>
           _playerScoreWidget(name, scores, context),
-        null => Text("Null"),
+        null => Expanded(child: Spacer()),
       },
     );
   }
@@ -65,19 +65,28 @@ class _PlayerScoreState extends State<PlayerScore> {
         child: Column(
           children: [
             Expanded(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification) {
+                  if (scrollNotification is ScrollStartNotification && scrollNotification.metrics.axisDirection == AxisDirection.up) {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  }
+                  return true;
+                },
                 child: ListView(
-              reverse: true,
-              children: [
-                for (final (index, item) in scores.reversed.indexed)
-                  ListTile(
-                    title: Text((scores.length - index).toString()),
-                    trailing: Text(
-                      item.toString(),
-                      textScaler: TextScaler.linear(1.5),
-                    ),
-                  ),
-              ],
-            )),
+                  reverse: true,
+                  children: [
+                    for (final (index, item) in scores.reversed.indexed)
+                      ListTile(
+                        title: Text((scores.length - index).toString()),
+                        trailing: Text(
+                          item.toString(),
+                          textScaler: TextScaler.linear(1.5),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(20),
               child: SizedBox(
@@ -135,7 +144,8 @@ class _submitButtons extends StatelessWidget {
     super.key,
     required PlayerScoreViewModel viewModel,
     required TextEditingController textEditingController,
-  }) : _viewModel = viewModel, _textEditingController = textEditingController;
+  })  : _viewModel = viewModel,
+        _textEditingController = textEditingController;
 
   final PlayerScoreViewModel _viewModel;
   final TextEditingController _textEditingController;
