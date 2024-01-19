@@ -1,19 +1,21 @@
-import 'package:flutter/cupertino.dart';
+import 'package:rxdart/rxdart.dart';
+
 import '../../db/player-db.dart';
 import '../../entity/player.dart';
 
-class PlayerListViewModel extends ChangeNotifier {
+class PlayerListViewModel {
   final PlayerDB playerDB;
 
   PlayerListViewModel({required this.playerDB});
 
-  List<Player> _players = [];
+  final _playerListObservable = BehaviorSubject<List<Player>>();
 
-  List<Player> get players => _players;
+  Stream<List<Player>> get playerList {
+    return _playerListObservable.stream;
+  }
 
   fetch() async {
-    _players = await playerDB.fetchAll();
-    notifyListeners();
+    _playerListObservable.value = await playerDB.fetchAll();
   }
 
   onDeleteAllPlayers() async {
@@ -22,15 +24,15 @@ class PlayerListViewModel extends ChangeNotifier {
   }
 
   onClearScores() async {
-    _players.forEach((element) async {
+    _playerListObservable.value.forEach((element) async {
       await playerDB.update(id: element.id, scores: []);
     });
     await fetch();
   }
 
   changeOrder(int oldIndex, int newIndex) async {
-    var oldItem = _players.firstWhere((element) => element.sorting == oldIndex);
-    var newItem = _players.firstWhere((element) => element.sorting == newIndex);
+    var oldItem = _playerListObservable.value.firstWhere((element) => element.sorting == oldIndex);
+    var newItem = _playerListObservable.value.firstWhere((element) => element.sorting == newIndex);
 
     await playerDB.update(id: oldItem.id, sorting: newIndex);
     await playerDB.update(id: newItem.id, sorting: oldIndex);

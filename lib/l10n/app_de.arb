@@ -1,4 +1,5 @@
 {
+  "appName": "Score Board",
   "currentScore": "Aktuelle Punktzahl",
   "newScore": "Neue Punktzahl",
   "playerName": "Spieler",

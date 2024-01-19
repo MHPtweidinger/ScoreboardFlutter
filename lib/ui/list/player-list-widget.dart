@@ -1,102 +1,98 @@
-import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:provider/provider.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:scoreboard/ui/list/player-list-view-model.dart';
 import 'package:scoreboard/ui/player-add/player-add.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../di/locator.dart';
+import '../../entity/player.dart';
 import '../player-score/player-score-widget.dart';
 
 class PlayerList extends StatefulWidget {
-  const PlayerList({super.key, required this.title});
-
-  final String title;
+  const PlayerList({super.key});
 
   @override
   State<PlayerList> createState() => _PlayerListState();
 }
 
 class _PlayerListState extends State<PlayerList> {
-  late PlayerListViewModel viewModel;
+  late PlayerListViewModel _viewModel;
 
   @override
   void initState() {
-    viewModel = Provider.of<PlayerListViewModel>(context, listen: false);
+    _viewModel = locator<PlayerListViewModel>();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      viewModel.fetch();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _viewModel.fetch();
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PlayerListViewModel>(
-      builder: (_, viewModel, child) => Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-          actions: [
-            IconButton(
-              icon: const Icon(Iconsax.eraser_14),
-              tooltip: 'Clear All Scores',
-              onPressed: () {
-                _showClearAllScoresDialog();
-              },
-            ),
-            IconButton(
-              icon: const Icon(Iconsax.grid_eraser5),
-              tooltip: AppLocalizations.of(context)!.deleteAllUsers,
-              onPressed: () async {
-                await _showDeleteAllUsersDialog();
-              },
-            ),
-          ],
-        ),
-        body: Center(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
+    var scrollController = ScrollController();
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(AppLocalizations.of(context)!.appName),
+        actions: [
+          IconButton(
+            icon: const Icon(Iconsax.eraser_14),
+            tooltip: 'Clear All Scores',
+            onPressed: () {
+              _showClearAllScoresDialog();
+            },
+          ),
+          IconButton(
+            icon: const Icon(Iconsax.grid_eraser5),
+            tooltip: AppLocalizations.of(context)!.deleteAllUsers,
+            onPressed: () async {
+              await _showDeleteAllUsersDialog();
+            },
+          ),
+        ],
+      ),
+      body: StreamBuilder<List<Player>>(
+        stream: _viewModel.playerList,
+        builder: (context, state) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
                 child: ReorderableListView(
+                  scrollController: scrollController,
                   onReorder: (int oldIndex, int newIndex) async {
-                    late int targetIndex;
-                    if (oldIndex < newIndex) {
-                      targetIndex = newIndex - 1;
-                    } else {
-                      targetIndex = newIndex;
-                    }
-                    ;
-                    await viewModel.changeOrder(oldIndex, targetIndex);
+                    int targetIndex = (oldIndex < newIndex) ? newIndex - 1 : newIndex;
+                    await _viewModel.changeOrder(oldIndex, targetIndex);
                   },
                   children: [
-                    for (var player in viewModel.players)
-                      ListTile(
-                        key: Key('${player.sorting}${player.id}'),
-                        title: Text(player.name),
-                        trailing: Text(player.scores.sum.toString()),
-                        onTap: () async {
-                          await Navigator.of(context).pushNamed(PlayerScore.routeName, arguments: player);
-                          viewModel.fetch();
-                        },
-                      ),
+                    if (state.data != null)
+                      for (var player in state.data!)
+                        ListTile(
+                          key: Key('${player.id}'),
+                          title: Text(player.name),
+                          trailing: Text(player.scores.sum.toString()),
+                          onTap: () async {
+                            await Navigator.of(context).pushNamed(PlayerScore.routeName, arguments: player);
+                            _viewModel.fetch();
+                          },
+                        ),
                   ],
                 ),
               ),
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            await Navigator.of(context).pushNamed(PlayerAdd.routeName);
-            viewModel.fetch();
-          },
-          tooltip: AppLocalizations.of(context)!.addPlayer,
-          child: const Icon(Icons.add),
-        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.of(context).pushNamed(PlayerAdd.routeName);
+          _viewModel.fetch();
+        },
+        tooltip: AppLocalizations.of(context)!.addPlayer,
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -124,7 +120,7 @@ class _PlayerListState extends State<PlayerList> {
             TextButton(
               child: Text(AppLocalizations.of(context)!.clearScoresDialogSubmit),
               onPressed: () {
-                viewModel.onClearScores();
+                _viewModel.onClearScores();
                 Navigator.of(context).pop();
               },
             ),
@@ -157,7 +153,7 @@ class _PlayerListState extends State<PlayerList> {
             TextButton(
               child: Text(AppLocalizations.of(context)!.wipePlayersDialogSubmit),
               onPressed: () {
-                viewModel.onDeleteAllPlayers();
+                _viewModel.onDeleteAllPlayers();
                 Navigator.of(context).pop();
                 Fluttertoast.showToast(
                   msg: AppLocalizations.of(context)!.allPlayersDeleted,

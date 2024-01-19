@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 import 'package:scoreboard/ui/player-score/player-score-view-model.dart';
+import 'package:scoreboard/ui/player-score/player-state-view-state.dart';
+
+import '../../di/locator.dart';
 
 class PlayerScore extends StatefulWidget {
   final int playerID;
@@ -19,124 +21,159 @@ class PlayerScore extends StatefulWidget {
 }
 
 class _PlayerScoreState extends State<PlayerScore> {
-  late PlayerScoreViewModel viewModel;
+  late PlayerScoreViewModel _viewModel;
 
-  final textEditingController = TextEditingController();
+  final _textEditingController = TextEditingController();
 
   @override
   void initState() {
-    viewModel = Provider.of<PlayerScoreViewModel>(context, listen: false);
-
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      viewModel.fetch(widget.playerID);
+    _viewModel = locator<PlayerScoreViewModel>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _viewModel.fetch(widget.playerID);
     });
     super.initState();
   }
 
   @override
   void dispose() {
-    textEditingController.dispose();
+    _textEditingController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PlayerScoreViewModel>(
-      builder: (_, model, child) => Scaffold(
-        appBar: AppBar(
-          title: Text(model.player!.name),
-        ),
-        body: Center(
-          child: Column(
-            children: [
-              Expanded(
-                  child: ListView(
-                reverse: true,
-                children: [
-                  for (final (index, item) in model.player!.scores.reversed.indexed)
-                    ListTile(
-                      title: Text((model.player!.scores.length - index).toString()),
-                      trailing: Text(
-                        item.toString(),
-                        textScaler: TextScaler.linear(1.5),
-                      ),
+    return StreamBuilder<ViewState>(
+      stream:  _viewModel.viewState,
+      builder: (context, state) => switch (state.data) {
+        LoadingViewState() => Text("Loading"),
+        ScoreViewState(
+          name: var name,
+          scores: var scores,
+        ) =>
+          _playerScoreWidget(name, scores, context),
+        null => Text("Null"),
+      },
+    );
+  }
+
+  Widget _playerScoreWidget(String name, List<int> scores, BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(name),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            Expanded(
+                child: ListView(
+              reverse: true,
+              children: [
+                for (final (index, item) in scores.reversed.indexed)
+                  ListTile(
+                    title: Text((scores.length - index).toString()),
+                    trailing: Text(
+                      item.toString(),
+                      textScaler: TextScaler.linear(1.5),
                     ),
-                ],
-              )),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: SizedBox(
-                    width: double.maxFinite,
-                    child: Row(
-                      children: [
-                        Text(
+                  ),
+              ],
+            )),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: SizedBox(
+                  width: double.maxFinite,
+                  child: Row(
+                    children: [
+                      Text(
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                        AppLocalizations.of(context)!.currentScore,
+                        textAlign: TextAlign.start,
+                      ),
+                      Expanded(
+                        child: Text(
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
                             fontSize: 18,
                           ),
-                          AppLocalizations.of(context)!.currentScore,
-                          textAlign: TextAlign.start,
-                        ),
-                        Expanded(
-                          child: Text(
-                            style: const TextStyle(
-                              fontSize: 18,
-                            ),
-                            model.player!.scores.sum.toString(),
-                            textAlign: TextAlign.end,
-                          ),
-                        ),
-                      ],
-                    )),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: TextFormField(
-                  autofocus: true,
-                  keyboardType: TextInputType.number,
-                  controller: textEditingController,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    hintText: AppLocalizations.of(context)!.newScore,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await model.updateScore(int.parse(textEditingController.text) * -1);
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          "-",
-                          textScaler: TextScaler.linear(5),
+                          scores.sum.toString(),
+                          textAlign: TextAlign.end,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 20), // give it width
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await model.updateScore(int.parse(textEditingController.text));
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          "+",
-                          textScaler: TextScaler.linear(5),
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  )),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: TextFormField(
+                autofocus: true,
+                onChanged: (text) {
+                  _viewModel.onInputChanged(text);
+                },
+                keyboardType: TextInputType.number,
+                controller: _textEditingController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: AppLocalizations.of(context)!.newScore,
                 ),
               ),
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: _submitButtons(viewModel: _viewModel, textEditingController: _textEditingController),
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class _submitButtons extends StatelessWidget {
+  const _submitButtons({
+    super.key,
+    required PlayerScoreViewModel viewModel,
+    required TextEditingController textEditingController,
+  }) : _viewModel = viewModel, _textEditingController = textEditingController;
+
+  final PlayerScoreViewModel _viewModel;
+  final TextEditingController _textEditingController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            onPressed: _viewModel.buttonsEnabled
+                ? () async {
+                    await _viewModel.updateScore(int.parse(_textEditingController.text) * -1);
+                    Navigator.pop(context);
+                  }
+                : null,
+            child: const Text(
+              "-",
+              textScaler: TextScaler.linear(5),
+            ),
+          ),
+        ),
+        const SizedBox(width: 20), // give it width
+        Expanded(
+          child: ElevatedButton(
+            onPressed: _viewModel.buttonsEnabled
+                ? () async {
+                    await _viewModel.updateScore(int.parse(_textEditingController.text));
+                    Navigator.pop(context);
+                  }
+                : null,
+            child: const Text(
+              "+",
+              textScaler: TextScaler.linear(5),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
